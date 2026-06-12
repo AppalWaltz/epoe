@@ -10,7 +10,7 @@ Baseline year: **Fiscal Year 2026**, current law, anchored to the Congressional 
 
 Federal budget debates are usually conducted as contests of slogans. This project conducts one as a contest of **stated values and shared arithmetic**. It does three things:
 
-1. **Characterizes reality without moral language.** Document `01` establishes, from primary sources, the actual structural relationship between the federal government and large-scale private enterprise — contracts, tax expenditures, lobbying, regulatory administration — treating that relationship as a *measured constraint*, not a villain or a hero.
+1. **Characterizes reality without moral language.** Document `01` establishes, from primary sources, the actual structural relationship between the federal government and large-scale private enterprise, including contracts, tax expenditures, lobbying, regulatory administration and treats that relationship as a *measured constraint*, not a villain or a hero.
 2. **States the arithmetic.** Document `02` lays out every dollar in and every dollar out of the federal government for FY2026, with each line traced to its statutory data source and tagged with an explicit confidence rating.
 3. **Optimizes, transparently, under different value systems.** Documents `03`–`04` formalize the budget as a nonlinear constrained optimization problem and then solve it under five distinct political value-weightings. The point is not that the computer picks the "right" budget. The point is that once values are stated as numbers (the α-weights), the **trade-offs become arithmetic instead of rhetoric** — and every reader can change the numbers and re-run.
 
@@ -18,8 +18,8 @@ Document `05` converts the analysis into a ranked, actionable list of the places
 
 ## What this is not
 
-- It is **not** a partisan argument. Every scenario — including ones the authors of any given reader's party would reject — is solved with the same machinery and reported with the same honesty.
-- It is **not** a line-item appropriations bill. The model operates at the **budget-function level** — the same level of granularity at which Congress itself writes its annual budget resolution under the Congressional Budget Act of 1974. The concurrent budget resolution allocates totals across ~20 budget functions; appropriations subcommittees then write line items inside those totals. This framework deliberately matches the instrument lawmakers actually vote on first. (Extending the data layer to the ~4,500 individual appropriation accounts is a mechanical, if large, extension — see *Roadmap* below.)
+- It is **not** a partisan argument. Every scenario, including ones the authors of any given reader's party would reject, is solved with the same machinery and reported with the same honesty.
+- It is **not** a line-item appropriations bill. The model operates at the **budget-function level**, which is the same level of granularity at which Congress itself writes its annual budget resolution under the Congressional Budget Act of 1974. The concurrent budget resolution allocates totals across ~20 budget functions; appropriations subcommittees then write line items inside those totals. This framework deliberately matches the instrument lawmakers actually vote on first. (Extending the data layer to the ~4,500 individual appropriation accounts is a mechanical, if large, extension — see *Roadmap* below.)
 - It is **not** a claim of precision. Every parameter carries a confidence tag, and Document `04` includes a standing section on what to watch for and what the contingency logic is if the assumptions fail.
 
 ## Repository map
@@ -55,11 +55,11 @@ cd model
 python run_scenarios.py
 ```
 
-Runtime is a few seconds. To test your own value system, copy a scenario block in `run_scenarios.py`, change the `alphas`, the constraint caps, or the banned instruments, and re-run. To challenge an empirical assumption, edit it in `data.py` — every parameter is annotated with its source and confidence — and observe how the optimal budgets move. **That sensitivity is itself the finding**: parameters whose variation reorders the conclusions are flagged in Document `04`.
+Runtime is a few seconds. To test your own value system, copy a scenario block in `run_scenarios.py`, change the `alphas`, the constraint caps, or the banned instruments, and re-run. To challenge an empirical assumption, edit it in `data.py`, every parameter is annotated with its source and confidence and observe how the optimal budgets move. **That sensitivity is itself the finding**: parameters whose variation reorders the conclusions are flagged in Document `04`.
 
 ## The interactive dashboard
 
-`index.html` is a self-contained, zero-dependency page that runs the **complete model in the browser** — the full data layer, the behavioral revenue functions, the endogenous-GDP block, the 11-year debt recursion, and all five constraint families. Nothing is distilled or precomputed; when you press *Solve*, your machine solves the same smooth nonlinear program the Python engine solves. Set the six α-weights, choose the fiscal ceilings and political-feasibility band, decide which revenue instruments are on the table, and solve — or start from any of the five published scenarios and depart from there. A solve takes a few seconds on a laptop.
+`index.html` is a self-contained, zero-dependency page that runs the **complete model in the browser**, including the full data layer, the behavioral revenue functions, the endogenous-GDP block, the 11-year debt recursion, and all five constraint families. Nothing is distilled or precomputed. When you press *Solve*, your machine solves the same smooth nonlinear program the Python engine solves. Set the six α-weights, choose the fiscal ceilings and political-feasibility band, decide which revenue instruments are on the table, and solve. You can also start from any of the five published scenarios and depart from there. A solve takes a few seconds on a laptop.
 
 The one substitution: SciPy's SLSQP does not exist in a browser, so the JavaScript engine uses a multi-start **augmented-Lagrangian method** (projected Adam inner loop, minimal-norm Newton feasibility polish) on the identical objective, constraints, and bounds. The port is validated head-to-head against the Python engine by `dashboard/validate.js` (`node dashboard/validate.js`); headline results match the published SLSQP solutions to within ~$10B on every scenario, and scenario E is reproduced exactly.
 
@@ -69,17 +69,6 @@ To modify the dashboard, edit `dashboard/epoe-model.js` (engine) or `dashboard/i
 python dashboard/build.py     # regenerates /index.html with the model inlined
 node dashboard/validate.js    # re-checks the JS engine against the Python results
 ```
-
-### Publishing on GitHub Pages
-
-```bash
-git init && git add -A && git commit -m "EPOE: framework, scenarios, dashboard"
-git branch -M main
-git remote add origin https://github.com/<your-username>/epoe.git
-git push -u origin main
-```
-
-Then on GitHub: **Settings → Pages → Build and deployment → Source: "Deploy from a branch" → Branch: `main`, folder: `/ (root)` → Save.** Within a minute or two the dashboard is live at `https://<your-username>.github.io/epoe/`, and the relative links in its footer resolve to the documents and source files in the same repository.
 
 ## Epistemics statement
 
