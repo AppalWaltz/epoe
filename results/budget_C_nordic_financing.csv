@@ -1,0 +1,29 @@
+category,baseline_$B,optimized_$B,change_$B,change_pct,confidence,note
+social_security,1666,1666,+0,+0.0%,HIGH,"OASDI benefits. FY25 actual $1,575B + CBO +$91B FY26 growth. OASI trust fund exhausted 2032 under current law (CBO)."
+medicare,1063,1167,+104,+9.8%,HIGH,Net of premiums. FY25 $988B + CBO +$75B. ~50% of beneficiaries now in privately administered Medicare Advantage.
+medicaid_chip,700,875,+175,+25.0%,HIGH,Federal share. FY25 $668B + CBO +$40B; P.L.119-21 cuts ~$1.2T over 10yr already embedded in baseline.
+aca_other_health,140,224,+84,+60.0%,MEDIUM,"ACA premium tax credits & related; enhanced subsidies expired, enrollment falling in baseline (CBO -$79B revision)."
+income_security,460,598,+138,+30.0%,MEDIUM,"SNAP, SSI, EITC/CTC refundable portions, UI, child nutrition. Split estimated from FY25 'other mandatory' $773B."
+veterans,420,483,+63,+15.0%,MEDIUM,Mandatory disability compensation + VA discretionary health. CBO FY26 growth +$49B. Floor=1.0: cuts treated as infeasible.
+fed_retirement,190,190,+0,+0.0%,MEDIUM,Civilian + military retirement. Contractual; near-zero one-cycle controllability.
+other_mandatory,320,320,+0,+0.0%,LOW,"Student loans (large FY26 +$89B re-estimate), agriculture, deposit insurance, misc. Most volatile residual line."
+defense,900,900,+0,+0.0%,HIGH,050 function. FY25 $893B + CR. ~half flows to contractors (symbiosis constraint binds here).
+intl_affairs,55,55,+0,+0.0%,MEDIUM,"State/USAID-successor ops, embassies, global health."
+science_space,80,120,+40,+50.0%,MEDIUM,"NSF, NASA, DOE Office of Science. Highest long-run growth spillovers per $ in the literature."
+health_research_ph,95,152,+57,+60.0%,MEDIUM,"NIH, CDC, FDA, HRSA discretionary. Public-health infrastructure case-study lever."
+education_training,115,172,+57,+50.0%,MEDIUM,"Title I, IDEA, Pell (disc. portion), workforce training."
+transportation,130,182,+52,+40.0%,MEDIUM,"Highways, transit, aviation, rail (incl. IIJA tail)."
+environment_energy,65,65,+0,+0.0%,MEDIUM,"EPA, Interior ops, DOE energy programs."
+housing_community,90,130,+40,+45.0%,MEDIUM,"HUD (Sec.8, public housing), CDBG, rural development."
+justice_homeland,105,105,+0,+0.0%,MEDIUM,"DOJ, federal courts, CBP/ICE (immigration enforcement elevated in baseline per 2025 reconciliation act)."
+general_gov_other,165,165,+0,+0.0%,LOW,"Treasury/IRS ops, GSA, Congress, residual NDD. Absorbs disaggregation error — widest uncertainty."
+offsetting_receipts,-389,-389,+0,0.0%,LOW,Reconciling line to CBO total
+net_interest,1030,1030,+0,0.0%,HIGH,Endogenous in out-years via debt path
+
+tax_instrument,setting,net_new_revenue_$B
+d_ind,1.45 pts effective indiv rate,+418
+d_corp,1.00 pts statutory corp rate,+17
+d_cap,1.00 fraction of cap-income package,+120
+payroll_cap,1.00 fraction of payroll-cap lift,+180
+vat,5.00 VAT rate %,+540
+carbon,80.00 carbon $/tCO2e,+166

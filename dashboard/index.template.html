@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EPOE — The Federal Budget as Arithmetic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafaf7;
+    --bg-alt: #f3f1ea;
+    --ink: #1a1a1a;
+    --ink-muted: #6b6b6b;
+    --rule: #d8d4c9;
+    --red-deep: #4A0E0E;
+    --red: #8B1F1F;
+    --amber: #C97A1F;
+    --green: #2D5F3F;
+    --accent: #1f3a5f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif; font-size: 14px; line-height: 1.5;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 48px 40px 80px; }
+
+  /* Masthead */
+  header.masthead { border-top: 4px solid var(--ink); border-bottom: 1px solid var(--rule);
+    padding: 24px 0 20px; margin-bottom: 36px; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--ink-muted); margin: 0 0 8px; }
+  h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 42px;
+    line-height: 1.05; letter-spacing: -0.01em; margin: 0 0 6px; }
+  h1 .subtitle { font-style: italic; color: var(--ink-muted); font-weight: 500; }
+  .masthead-meta { display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 18px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--ink-muted); letter-spacing: 0.06em; flex-wrap: wrap; gap: 6px; }
+
+  h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 26px;
+    margin: 56px 0 4px; border-bottom: 1px solid var(--rule); padding-bottom: 12px; }
+  h2:first-of-type { margin-top: 0; }
+  h2 .index { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-muted);
+    letter-spacing: 0.16em; margin-right: 14px; vertical-align: 0.3em; }
+  .section-lede { color: var(--ink-muted); font-size: 14px; margin: 8px 0 24px; max-width: 820px; }
+  .section-lede a { color: var(--accent); }
+
+  /* Preset chips */
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; }
+  .chip { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.05em;
+    padding: 8px 13px; border: 1px solid var(--rule); background: white; cursor: pointer;
+    color: var(--ink); transition: border-color 0.15s, background 0.15s; }
+  .chip:hover { border-color: var(--ink-muted); }
+  .chip.active { background: var(--ink); color: white; border-color: var(--ink); }
+  .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Control panel */
+  .controls { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .panel { background: white; border: 1px solid var(--rule); padding: 22px 24px; }
+  .panel h3 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); margin: 0 0 4px; }
+  .panel .sub { font-size: 12.5px; color: var(--ink-muted); margin: 0 0 16px; }
+
+  .alpha-row { display: grid; grid-template-columns: 190px 1fr 52px; gap: 14px;
+    align-items: center; padding: 7px 0; border-bottom: 1px dotted var(--rule); }
+  .alpha-row:last-of-type { border-bottom: none; }
+  .alpha-name { font-size: 13px; }
+  .alpha-name .greek { font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 16px; color: var(--accent); margin-right: 7px; }
+  .alpha-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; text-align: right;
+    font-variant-numeric: tabular-nums; }
+  input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px;
+    background: transparent; cursor: pointer; margin: 0; }
+  input[type="range"]::-webkit-slider-runnable-track { height: 4px; background: var(--bg-alt);
+    border: 1px solid var(--rule); }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px;
+    background: var(--accent); border: none; margin-top: -6px; border-radius: 0; }
+  input[type="range"]::-moz-range-track { height: 4px; background: var(--bg-alt);
+    border: 1px solid var(--rule); }
+  input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; background: var(--accent);
+    border: none; border-radius: 0; }
+  input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input[type="range"]:disabled::-webkit-slider-thumb { background: var(--rule); }
+  input[type="range"]:disabled::-moz-range-thumb { background: var(--rule); }
+
+  .constraint-row { display: grid; grid-template-columns: 150px 1fr 88px; gap: 14px;
+    align-items: center; padding: 7px 0; border-bottom: 1px dotted var(--rule); font-size: 13px; }
+  .constraint-val { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; text-align: right;
+    font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .check-label { display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
+    color: var(--ink-muted); cursor: pointer; }
+  input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+  .feas-chips { display: flex; gap: 6px; }
+  .feas-chips .chip { padding: 5px 9px; font-size: 10px; }
+
+  .inst-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  .inst-table td { padding: 6px 4px; border-bottom: 1px dotted var(--rule); font-size: 12.5px; }
+  .inst-table tr:last-child td { border-bottom: none; }
+  .inst-bounds { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-muted);
+    text-align: right; white-space: nowrap; }
+  .inst-off td { color: var(--ink-muted); }
+  .inst-off .inst-bounds { text-decoration: line-through; }
+
+  /* Solve bar */
+  .solvebar { display: flex; align-items: center; gap: 18px; background: white;
+    border: 1px solid var(--rule); padding: 16px 22px; margin-bottom: 8px; flex-wrap: wrap; }
+  button.solve { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em;
+    text-transform: uppercase; background: var(--ink); color: white; border: none;
+    padding: 12px 26px; cursor: pointer; }
+  button.solve:hover { background: var(--accent); }
+  button.solve:disabled { background: var(--ink-muted); cursor: wait; }
+  button.solve:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .progress { flex: 1; min-width: 160px; height: 6px; background: var(--bg-alt);
+    border: 1px solid var(--rule); }
+  .progress > div { height: 100%; width: 0; background: var(--accent); transition: width 0.25s; }
+  .solve-status { font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--ink-muted); min-width: 210px; }
+
+  /* Stat strip */
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0;
+    border: 1px solid var(--rule); background: white; margin-bottom: 20px; }
+  .stat { padding: 20px 22px; border-right: 1px solid var(--rule); }
+  .stat:last-child { border-right: none; }
+  .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-muted); margin-bottom: 8px; }
+  .stat-value { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600;
+    line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .stat-value.alert { color: var(--red); }
+  .stat-value.good { color: var(--green); }
+  .stat-detail { margin-top: 6px; font-size: 12px; color: var(--ink-muted); }
+
+  /* Utility metrics */
+  .metric-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0;
+    background: white; border: 1px solid var(--rule); margin-bottom: 20px; }
+  .metric { text-align: center; padding: 14px 8px; border-right: 1px solid var(--rule); }
+  .metric:last-child { border-right: none; }
+  .metric-value { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 500;
+    font-variant-numeric: tabular-nums; }
+  .metric-value.pos { color: var(--green); } .metric-value.neg { color: var(--red); }
+  .metric-label { font-family: 'JetBrains Mono', monospace; font-size: 9.5px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); margin-top: 4px; }
+
+  /* Charts */
+  .chart-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .chart-block { background: white; border: 1px solid var(--rule); padding: 18px 20px; }
+  .chart-block h3 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); margin: 0 0 12px; }
+  .legend { display: flex; gap: 18px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+    color: var(--ink-muted); margin-top: 8px; }
+  .legend span::before { content: ""; display: inline-block; width: 18px; height: 0;
+    border-top: 2.5px solid; margin-right: 6px; vertical-align: middle; }
+  .legend .l-base::before { border-top-style: dashed; border-color: var(--ink-muted); }
+  .legend .l-opt::before { border-color: var(--accent); }
+
+  /* Tornado */
+  .tornado-row { display: grid; grid-template-columns: 240px 56px 1fr 150px; gap: 12px;
+    align-items: center; padding: 5px 0; border-bottom: 1px dotted var(--rule); font-size: 12.5px; }
+  .tornado-row:last-child { border-bottom: none; }
+  .t-bar-wrap { position: relative; height: 13px; background: var(--bg-alt); }
+  .t-axis { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--ink-muted); }
+  .t-bar { position: absolute; top: 0; height: 100%; transition: width 0.4s, left 0.4s; }
+  .t-bar.cut { background: var(--red); right: 50%; }
+  .t-bar.add { background: var(--green); left: 50%; }
+  .t-num { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; text-align: right;
+    font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .conf-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    font-weight: 600; letter-spacing: 0.08em; padding: 2px 6px; border-radius: 2px; color: white; }
+  .conf-high { background: var(--green); } .conf-medium { background: var(--amber); }
+  .conf-low { background: var(--ink-muted); }
+
+  /* Tables */
+  .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; background: white;
+    border: 1px solid var(--rule); }
+  .data-table th { text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+    font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted);
+    padding: 12px 14px; border-bottom: 1px solid var(--rule); background: var(--bg-alt); }
+  .data-table td { padding: 11px 14px; border-bottom: 1px solid var(--rule); font-size: 13px; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table .num { text-align: right; font-variant-numeric: tabular-nums;
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+  .data-table .muted { color: var(--ink-muted); }
+  .data-table tr.you { background: #eef2f7; }
+  .data-table tr.you td:first-child { border-left: 3px solid var(--accent); }
+
+  .footnote { font-size: 12px; color: var(--ink-muted); margin-top: 6px; }
+  .results-hidden { display: none; }
+
+  footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--rule);
+    font-size: 12px; color: var(--ink-muted); font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em; }
+  footer p { margin: 4px 0; }
+  footer a { color: var(--accent); }
+
+  @media (max-width: 980px) {
+    .wrap { padding: 32px 18px 60px; }
+    .controls, .chart-grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stat { border-bottom: 1px solid var(--rule); }
+    .metric-grid { grid-template-columns: repeat(3, 1fr); }
+    .metric { border-bottom: 1px solid var(--rule); }
+    .tornado-row { grid-template-columns: 130px 50px 1fr 110px; }
+    h1 { font-size: 30px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">EPOE · Empirical Policy Optimization Engine</p>
+    <h1>The federal budget as arithmetic,<br><span class="subtitle">not rhetoric.</span></h1>
+    <div class="masthead-meta">
+      <span>FY2026 BASELINE · CBO FEB 2026 OUTLOOK · EVERY PARAMETER SOURCED</span>
+      <span>FULL MODEL · SOLVES IN YOUR BROWSER · NO SERVER</span>
+    </div>
+  </header>
+
+  <h2><span class="index">§1</span>State your values. The arithmetic does the rest.</h2>
+  <p class="section-lede">
+    This page runs the <em>complete</em> EPOE optimization model — 18 spending categories,
+    6 revenue instruments with behavioral erosion, an endogenous economy, and the full 11-year
+    debt recursion — entirely in your browser. Set the α-weights (how much you value each
+    outcome), choose the constraints your coalition would accept, and solve. Start from one of
+    the five published scenarios or build your own. Every empirical parameter is documented in
+    <a href="model/data.py">model/data.py</a> with source and confidence rating.
+  </p>
+
+  <div class="presets" id="presets" role="group" aria-label="Scenario presets"></div>
+
+  <div class="controls">
+    <div class="panel">
+      <h3>The value ledger — α weights</h3>
+      <p class="sub">Pure value statements. All outcome utilities share one unit (1.0 ≡ $100B of social value), so these weights compare like with like.</p>
+      <div id="alphaRows"></div>
+    </div>
+    <div class="panel">
+      <h3>Constraints &amp; instruments — what your coalition accepts</h3>
+      <p class="sub">Fiscal ceilings, political feasibility, and which revenue instruments are on the table.</p>
+      <div id="constraintRows"></div>
+      <table class="inst-table" id="instTable"></table>
+    </div>
+  </div>
+
+  <div class="solvebar">
+    <button class="solve" id="solveBtn">Solve this value system</button>
+    <div class="progress" aria-hidden="true"><div id="progressFill"></div></div>
+    <div class="solve-status" id="solveStatus">Ready. A solve takes a few seconds on a laptop, longer on a phone.</div>
+  </div>
+  <p class="footnote">Solver: multi-start augmented-Lagrangian over the same smooth program the
+    Python engine solves with SLSQP. Validated head-to-head: headline results match the published
+    SLSQP solutions to within ~$10B (see <code>dashboard/validate.js</code>).</p>
+
+  <div id="results" class="results-hidden">
+    <h2><span class="index">§2</span>The optimized budget</h2>
+    <p class="section-lede" id="resultLede"></p>
+
+    <div class="stats" id="statStrip"></div>
+    <div class="metric-grid" id="utilStrip"></div>
+
+    <div class="chart-grid">
+      <div class="chart-block">
+        <h3>Debt held by the public, % of GDP · FY2026–FY2036</h3>
+        <div id="debtChart"></div>
+        <div class="legend">
+          <span class="l-base">CBO current-law baseline</span>
+          <span class="l-opt">This value system</span>
+        </div>
+      </div>
+      <div class="chart-block">
+        <h3>Revenue instruments — settings &amp; net new revenue</h3>
+        <table class="data-table" id="revTable"></table>
+        <p class="footnote">Net of behavioral erosion (ETI, profit shifting, VAT evasion,
+        carbon base decay). The Laffer boundary is endogenous, not assumed.</p>
+      </div>
+    </div>
+
+    <div class="chart-block">
+      <h3>Spending by category — change from the FY2026 baseline</h3>
+      <div id="tornado"></div>
+      <p class="footnote">Hover a row for the category's data note. Confidence rates the
+      baseline dollar figure, not the optimization. Bars share one $-scale.</p>
+    </div>
+
+    <h2><span class="index">§3</span>Your budget on the published frontier</h2>
+    <p class="section-lede">
+      The five published scenarios were solved with the repository's Python engine (SLSQP) and
+      are reproducible from <code>model/run_scenarios.py</code>. Your solve is placed among them.
+    </p>
+    <table class="data-table" id="frontierTable"></table>
+  </div>
+
+  <footer>
+    <p>EPOE — EMPIRICAL POLICY OPTIMIZATION ENGINE · FY2026 CURRENT-LAW BASELINE</p>
+    <p>SOURCES: CBO BUDGET &amp; ECONOMIC OUTLOOK FEB 2026 · TREASURY FINAL MTS FY2025 · JCT JCX-45-25 ·
+       OPENSECRETS · HENDREN &amp; SPRUNG-KEYSER (QJE 2020)</p>
+    <p>THE POINT IS NOT THAT THE COMPUTER PICKS THE RIGHT BUDGET. THE POINT IS THAT ONCE VALUES ARE
+       STATED AS NUMBERS, THE TRADE-OFFS BECOME ARITHMETIC — AND ANYONE CAN CHANGE THE NUMBERS AND RE-RUN.</p>
+    <p>DOCUMENTATION: <a href="docs/03_mathematical_model.md">THE MODEL</a> ·
+       <a href="docs/04_scenario_results.md">SCENARIO RESULTS</a> ·
+       <a href="docs/05_ranked_actions.md">RANKED ACTIONS</a> ·
+       <a href="README.md">README</a></p>
+  </footer>
+</div>
+
+<script>
+/*__EPOE_MODEL__*/
+</script>
+<script>
+(function () {
+"use strict";
+const E = window.EPOE;
+const $ = id => document.getElementById(id);
+const fmt$ = x => "$" + Math.round(x).toLocaleString("en-US") + "B";
+const fmt1 = x => (x >= 0 ? "+" : "") + x.toFixed(1);
+const pct = x => x.toFixed(1) + "%";
+
+/* Published SLSQP reference results (results/summary.csv) */
+const PUBLISHED = [
+  { key: "baseline", label: "CBO current-law baseline", o: 7400, r: 5600, d: 1800, dg: 5.7, debt: 121, uh: 0, ue: 0, ug: 0 },
+  { key: "A_growth_capital", label: "A · Growth & Capital Optimization", o: 6857, r: 5526, d: 1332, dg: 4.2, debt: 107, uh: -1.9, ue: -2.2, ug: -5.8 },
+  { key: "B_social_welfare", label: "B · Social Welfare Maximization", o: 8211, r: 6663, d: 1548, dg: 4.9, debt: 111, uh: 5.9, ue: 11.0, ug: 6.0 },
+  { key: "C_nordic_financing", label: "C · Nordic-Style Financing", o: 8211, r: 7017, d: 1194, dg: 3.8, debt: 101, uh: 6.3, ue: 5.3, ug: 2.4 },
+  { key: "D_fiscal_consolidation", label: "D · Deficit-First Grand Bargain", o: 7695, r: 6591, d: 1103, dg: 3.5, debt: 98, uh: 4.3, ue: 8.7, ug: 2.0 },
+  { key: "E_pragmatic_pareto", label: "E · Pragmatic Compromise", o: 7801, r: 6603, d: 1198, dg: 3.8, debt: 101, uh: 4.5, ue: 8.3, ug: 2.0 },
+];
+
+/* ------------------------------------------------------------- state */
+let state = null;          // current scenario config (deep, mutable)
+let activePreset = "E_pragmatic_pareto";
+let lastResult = null;
+
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+function loadPreset(key) {
+  activePreset = key;
+  const p = E.SCENARIOS[key];
+  state = clone({
+    name: p.name, label: p.label, alphas: p.alphas,
+    deficit_cap_gdp: p.deficit_cap_gdp != null ? p.deficit_cap_gdp : null,
+    debt_cap_2036: p.debt_cap_2036 != null ? p.debt_cap_2036 : null,
+    ban_instruments: p.ban_instruments || [],
+    instrument_overrides: p.instrument_overrides || {},
+    feasibility_tighten: p.feasibility_tighten != null ? p.feasibility_tighten : 1.0,
+    frozen: !!p.frozen,
+  });
+  renderControls();
+}
+
+function markCustom() {
+  if (activePreset !== "custom") {
+    activePreset = "custom";
+    state.name = "custom"; state.label = "Your value system"; state.frozen = false;
+    renderPresetChips();
+  }
+}
+
+/* ---------------------------------------------------------- controls */
+const ALPHAS = [
+  ["growth",     "g", "Economic growth"],
+  ["health",     "h", "Health outcomes"],
+  ["equity",     "e", "Equity & distribution"],
+  ["security",   "s", "Security"],
+  ["distortion", "d", "Tax distortion (penalty)"],
+  ["debt",       "b", "Debt burden (penalty)"],
+];
+
+function renderPresetChips() {
+  const order = ["baseline", "A_growth_capital", "B_social_welfare", "C_nordic_financing",
+                 "D_fiscal_consolidation", "E_pragmatic_pareto"];
+  const box = $("presets"); box.innerHTML = "";
+  for (const k of order) {
+    const b = document.createElement("button");
+    b.className = "chip" + (activePreset === k ? " active" : "");
+    b.textContent = E.SCENARIOS[k].label;
+    b.onclick = () => { loadPreset(k); renderPresetChips(); };
+    box.appendChild(b);
+  }
+  const c = document.createElement("button");
+  c.className = "chip" + (activePreset === "custom" ? " active" : "");
+  c.textContent = "Custom — your value system";
+  c.onclick = () => { markCustom(); renderControls(); };
+  box.appendChild(c);
+}
+
+function renderControls() {
+  /* α sliders */
+  const aBox = $("alphaRows"); aBox.innerHTML = "";
+  for (const [key, greek, name] of ALPHAS) {
+    const row = document.createElement("div"); row.className = "alpha-row";
+    const lab = document.createElement("div"); lab.className = "alpha-name";
+    lab.innerHTML = '<span class="greek">α<sub>' + greek + "</sub></span>" + name;
+    const inp = document.createElement("input");
+    inp.type = "range"; inp.min = "0"; inp.max = "3"; inp.step = "0.1";
+    inp.value = state.alphas[key]; inp.disabled = state.frozen;
+    inp.setAttribute("aria-label", name + " weight");
+    const val = document.createElement("div"); val.className = "alpha-val";
+    val.textContent = Number(state.alphas[key]).toFixed(1);
+    inp.oninput = () => { state.alphas[key] = parseFloat(inp.value);
+      val.textContent = parseFloat(inp.value).toFixed(1); markCustom(); };
+    row.append(lab, inp, val); aBox.appendChild(row);
+  }
+
+  /* constraint rows */
+  const cBox = $("constraintRows"); cBox.innerHTML = "";
+
+  // deficit ceiling
+  cBox.appendChild(constraintSlider("Deficit ceiling, yr 1",
+    state.deficit_cap_gdp, 3.0, 6.5, 0.1, 100,
+    v => { state.deficit_cap_gdp = v; markCustom(); },
+    v => v == null ? "none" : v.toFixed(1) + "% GDP", 5.8));
+
+  // debt ceiling 2036
+  cBox.appendChild(constraintSlider("Debt/GDP ceiling, 2036",
+    state.debt_cap_2036, 0.90, 1.30, 0.01, 100,
+    v => { state.debt_cap_2036 = v; markCustom(); },
+    v => v == null ? "none" : Math.round(v * 100) + "%", 1.21));
+
+  // feasibility
+  const fr = document.createElement("div"); fr.className = "constraint-row";
+  fr.innerHTML = "<div>Political feasibility</div>";
+  const chips = document.createElement("div"); chips.className = "feas-chips";
+  for (const [v, lab] of [[1.0, "STATUTORY 100%"], [0.8, "NEGOTIATED 80%"], [0.6, "NARROW 60%"]]) {
+    const b = document.createElement("button");
+    b.className = "chip" + (Math.abs(state.feasibility_tighten - v) < 1e-9 ? " active" : "");
+    b.textContent = lab; b.disabled = state.frozen;
+    b.onclick = () => { state.feasibility_tighten = v; markCustom(); renderControls(); };
+    chips.appendChild(b);
+  }
+  const fv = document.createElement("div"); fv.className = "constraint-val";
+  fv.textContent = "×" + state.feasibility_tighten.toFixed(1);
+  fr.append(chips, fv); cBox.appendChild(fr);
+
+  /* instrument table */
+  const t = $("instTable"); t.innerHTML = "";
+  const bounds = E.buildBounds(state);
+  for (let k = 0; k < E.NT; k++) {
+    const key = E.TAXES[k], inst = E.TAX_INSTRUMENTS[key];
+    const banned = state.ban_instruments.includes(key);
+    const tr = document.createElement("tr");
+    if (banned) tr.className = "inst-off";
+    const tdC = document.createElement("td"); tdC.style.width = "26px";
+    const cb = document.createElement("input"); cb.type = "checkbox";
+    cb.checked = !banned; cb.disabled = state.frozen;
+    cb.setAttribute("aria-label", "Allow " + inst.label);
+    cb.onchange = () => {
+      if (cb.checked) state.ban_instruments = state.ban_instruments.filter(x => x !== key);
+      else state.ban_instruments.push(key);
+      delete state.instrument_overrides[key];   // a manual toggle supersedes preset mandates
+      markCustom(); renderControls();
+    };
+    tdC.appendChild(cb);
+    const tdN = document.createElement("td"); tdN.textContent = inst.label;
+    const tdB = document.createElement("td"); tdB.className = "inst-bounds";
+    tdB.textContent = banned ? "off the table"
+      : bounds.lo[E.NC + k].toFixed(1) + " … " + bounds.hi[E.NC + k].toFixed(1) + " " + inst.unit;
+    tr.append(tdC, tdN, tdB); t.appendChild(tr);
+  }
+  renderPresetChips();
+}
+
+function constraintSlider(label, value, min, max, step, scale, set, fmt, defWhenOn) {
+  const row = document.createElement("div"); row.className = "constraint-row";
+  const lab = document.createElement("div"); lab.textContent = label;
+  const mid = document.createElement("div");
+  const inp = document.createElement("input");
+  inp.type = "range"; inp.min = min; inp.max = max; inp.step = step;
+  inp.value = value != null ? value : defWhenOn;
+  inp.disabled = state.frozen || value == null;
+  inp.setAttribute("aria-label", label);
+  const chk = document.createElement("label"); chk.className = "check-label";
+  const cb = document.createElement("input"); cb.type = "checkbox";
+  cb.checked = value != null; cb.disabled = state.frozen;
+  chk.append(cb, document.createTextNode("enforce"));
+  mid.append(inp, chk);
+  const val = document.createElement("div"); val.className = "constraint-val";
+  val.textContent = fmt(value);
+  inp.oninput = () => { set(parseFloat(inp.value)); val.textContent = fmt(parseFloat(inp.value)); };
+  cb.onchange = () => {
+    if (cb.checked) { set(parseFloat(inp.value)); inp.disabled = state.frozen; }
+    else { set(null); inp.disabled = true; }
+    val.textContent = fmt(cb.checked ? parseFloat(inp.value) : null);
+  };
+  row.append(lab, mid, val);
+  return row;
+}
+
+/* -------------------------------------------------------------- solve */
+async function runSolve() {
+  const btn = $("solveBtn"), fill = $("progressFill"), status = $("solveStatus");
+  btn.disabled = true;
+  const t0 = performance.now();
+  let result;
+  if (state.frozen || activePreset === "baseline") {
+    status.textContent = "Baseline requires no optimization.";
+    fill.style.width = "100%";
+    result = E.report(new Array(E.NC + E.NT).fill(0), state, 0);
+  } else {
+    result = await E.solveAsync(state, {
+      onProgress: (f, s, n) => {
+        fill.style.width = Math.round(f * 100) + "%";
+        status.textContent = f >= 1 ? "Finalizing…"
+          : "Optimizing — start " + s + " of " + n + " (multi-start)…";
+      }
+    });
+  }
+  const secs = ((performance.now() - t0) / 1000).toFixed(1);
+  status.textContent = "Solved in " + secs + "s · worst constraint slack " +
+    (result.maxViolation < 0.005 ? "0" : result.maxViolation.toFixed(2)) + " native units.";
+  lastResult = result;
+  renderResults(result);
+  btn.disabled = false;
+}
+
+/* ------------------------------------------------------------ results */
+function renderResults(r) {
+  $("results").classList.remove("results-hidden");
+  const m = r.macro, u = r.U;
+  const defGdp = m.deficit / E.GDP_2026 * 100;
+  const debt36 = r.debtRatios[r.debtRatios.length - 1] * 100;
+  const baseDebt36 = r.baselineDebtRatios[r.baselineDebtRatios.length - 1] * 100;
+  const dGdp = m.Y - E.GDP_2026;
+
+  $("resultLede").textContent =
+    (activePreset === "baseline"
+      ? "Current law, untouched. This is the path the optimized scenarios are measured against."
+      : "The welfare-maximizing budget for the value system stated above, subject to every statutory, symbiosis, and capacity constraint in the model.");
+
+  $("statStrip").innerHTML = [
+    stat("Outlays", fmt$(m.outlays), "vs $7,400B baseline"),
+    stat("Revenues", fmt$(m.revenues), "vs $5,600B baseline"),
+    stat("Deficit", fmt$(m.deficit), pct(defGdp) + " of GDP · baseline 5.7%",
+         defGdp > 5.0 ? "alert" : defGdp < 4.0 ? "good" : ""),
+    stat("Debt/GDP 2036", Math.round(debt36) + "%", "baseline path: " + Math.round(baseDebt36) + "%",
+         debt36 >= baseDebt36 - 0.5 ? "alert" : debt36 <= 101 ? "good" : ""),
+    stat("GDP, year 1", (dGdp >= 0 ? "+" : "−") + "$" + Math.abs(Math.round(dGdp)) + "B",
+         "demand-side effect vs baseline"),
+  ].join("");
+
+  $("utilStrip").innerHTML = [
+    metric(u.U_growth, "U·growth"), metric(u.U_health, "U·health"),
+    metric(u.U_equity, "U·equity"), metric(u.U_security, "U·security"),
+    metric(-u.distortion, "−distortion"), metric(r.W, "W · welfare", true),
+  ].join("");
+
+  drawDebtChart(r);
+  drawRevTable(r);
+  drawTornado(r);
+  drawFrontier(r);
+  $("results").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function stat(label, value, detail, cls) {
+  return '<div class="stat"><div class="stat-label">' + label + '</div>' +
+    '<div class="stat-value ' + (cls || "") + '">' + value + '</div>' +
+    '<div class="stat-detail">' + detail + "</div></div>";
+}
+function metric(v, label, neutral) {
+  const cls = neutral ? "" : (v > 0.05 ? "pos" : v < -0.05 ? "neg" : "");
+  return '<div class="metric"><div class="metric-value ' + cls + '">' + fmt1(v) +
+    '</div><div class="metric-label">' + label + "</div></div>";
+}
+
+function drawDebtChart(r) {
+  const W = 560, H = 240, padL = 44, padR = 56, padT = 14, padB = 26;
+  const years = []; for (let i = 0; i < E.HORIZON; i++) years.push(2026 + i);
+  const a = r.baselineDebtRatios.map(x => x * 100);
+  const b = r.debtRatios.map(x => x * 100);
+  const lo = Math.min(95, Math.floor(Math.min(...a, ...b) / 5) * 5);
+  const hi = Math.max(125, Math.ceil(Math.max(...a, ...b) / 5) * 5);
+  const X = i => padL + (W - padL - padR) * i / (E.HORIZON - 1);
+  const Y = v => padT + (H - padT - padB) * (1 - (v - lo) / (hi - lo));
+  const path = s => s.map((v, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1)).join(" ");
+  let grid = "";
+  for (let v = lo; v <= hi; v += 10) {
+    grid += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + Y(v) + '" y2="' + Y(v) +
+      '" stroke="#e7e3d8" stroke-width="1"/>' +
+      '<text x="' + (padL - 8) + '" y="' + (Y(v) + 3.5) + '" text-anchor="end" ' +
+      'font-family="JetBrains Mono" font-size="10" fill="#6b6b6b">' + v + "%</text>";
+  }
+  let xticks = "";
+  for (let i = 0; i < E.HORIZON; i += 2) {
+    xticks += '<text x="' + X(i) + '" y="' + (H - 6) + '" text-anchor="middle" ' +
+      'font-family="JetBrains Mono" font-size="10" fill="#6b6b6b">' + years[i] + "</text>";
+  }
+  const endA = a[a.length - 1], endB = b[b.length - 1];
+  $("debtChart").innerHTML =
+    '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" role="img" ' +
+    'aria-label="Debt to GDP trajectory, baseline versus optimized">' + grid + xticks +
+    '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + Y(100) + '" y2="' + Y(100) +
+    '" stroke="#b8b2a4" stroke-width="1" stroke-dasharray="2 3"/>' +
+    '<path d="' + path(a) + '" fill="none" stroke="#6b6b6b" stroke-width="2" stroke-dasharray="6 4"/>' +
+    '<path d="' + path(b) + '" fill="none" stroke="#1f3a5f" stroke-width="2.5"/>' +
+    '<text x="' + (W - padR + 6) + '" y="' + (Y(endA) + 3.5) + '" font-family="JetBrains Mono" ' +
+    'font-size="10.5" fill="#6b6b6b">' + Math.round(endA) + "%</text>" +
+    '<text x="' + (W - padR + 6) + '" y="' + (Y(endB) + 3.5) + '" font-family="JetBrains Mono" ' +
+    'font-size="11" font-weight="600" fill="#1f3a5f">' + Math.round(endB) + "%</text>" +
+    "</svg>";
+}
+
+function drawRevTable(r) {
+  const t = $("revTable");
+  let html = "<tr><th>Instrument</th><th class='num'>Setting</th><th class='num'>Net new $B/yr</th></tr>";
+  const z = r.z;
+  for (let k = 0; k < E.NT; k++) {
+    const key = E.TAXES[k], inst = E.TAX_INSTRUMENTS[key];
+    const setting = z[E.NC + k], rev = r.macro.revVec[k];
+    const off = Math.abs(setting) < 0.005;
+    html += "<tr" + (off ? ' class="muted"' : "") + "><td>" + inst.label + "</td>" +
+      '<td class="num">' + (off ? "—" : setting.toFixed(2) + " " + inst.unit) + "</td>" +
+      '<td class="num">' + (off ? "—" : (rev >= 0 ? "+" : "−") + Math.abs(Math.round(rev))) + "</td></tr>";
+  }
+  const total = r.macro.revVec.reduce((s, x) => s + x, 0);
+  html += '<tr><td><strong>Total new revenue (pre-GDP feedback)</strong></td><td></td>' +
+    '<td class="num"><strong>' + (total >= 0 ? "+" : "−") + Math.abs(Math.round(total)) + "</strong></td></tr>";
+  t.innerHTML = html;
+}
+
+function drawTornado(r) {
+  const box = $("tornado"); box.innerHTML = "";
+  const rows = E.CATS.map((c, i) => ({
+    c, i, base: E.BASE[i], d: r.macro.spend[i] - E.BASE[i], pct: r.z[i] * 100,
+    conf: E.SPENDING[c].conf, label: E.SPENDING[c].label, note: E.SPENDING[c].note,
+  }));
+  const maxAbs = Math.max(40, ...rows.map(x => Math.abs(x.d)));
+  rows.sort((x, y) => y.d - x.d);
+  for (const row of rows) {
+    const el = document.createElement("div"); el.className = "tornado-row";
+    el.title = row.note;
+    const halfPct = Math.min(50, Math.abs(row.d) / maxAbs * 50);
+    el.innerHTML =
+      "<div>" + row.label + "</div>" +
+      '<div><span class="conf-badge conf-' + row.conf.toLowerCase() + '">' + row.conf + "</span></div>" +
+      '<div class="t-bar-wrap"><div class="t-axis"></div>' +
+      '<div class="t-bar ' + (row.d < 0 ? "cut" : "add") + '" style="width:' + halfPct + '%"></div></div>' +
+      '<div class="t-num">' + (row.d >= 0 ? "+" : "−") + "$" + Math.abs(Math.round(row.d)) + "B · " +
+      (row.pct >= 0 ? "+" : "") + row.pct.toFixed(1) + "%</div>";
+    box.appendChild(el);
+  }
+}
+
+function drawFrontier(r) {
+  const t = $("frontierTable");
+  let html = "<tr><th>Scenario</th><th class='num'>Outlays</th><th class='num'>Revenues</th>" +
+    "<th class='num'>Deficit</th><th class='num'>%GDP</th><th class='num'>Debt/GDP ’36</th>" +
+    "<th class='num'>U·health</th><th class='num'>U·equity</th><th class='num'>U·growth</th></tr>";
+  for (const p of PUBLISHED) {
+    html += "<tr><td>" + p.label + (p.key === "baseline" ? "" : ' <span class="muted">(published)</span>') +
+      '</td><td class="num">' + p.o.toLocaleString() + '</td><td class="num">' + p.r.toLocaleString() +
+      '</td><td class="num">' + p.d.toLocaleString() + '</td><td class="num">' + p.dg.toFixed(1) +
+      '%</td><td class="num">' + p.debt + '%</td><td class="num">' + fmt1(p.uh) +
+      '</td><td class="num">' + fmt1(p.ue) + '</td><td class="num">' + fmt1(p.ug) + "</td></tr>";
+  }
+  const m = r.macro, u = r.U;
+  const debt36 = Math.round(r.debtRatios[r.debtRatios.length - 1] * 100);
+  html += '<tr class="you"><td><strong>' +
+    (activePreset === "custom" ? "Your value system" : "Your solve · " + state.label) +
+    '</strong> <span class="muted">(this browser)</span></td>' +
+    '<td class="num">' + Math.round(m.outlays).toLocaleString() + '</td>' +
+    '<td class="num">' + Math.round(m.revenues).toLocaleString() + '</td>' +
+    '<td class="num">' + Math.round(m.deficit).toLocaleString() + '</td>' +
+    '<td class="num">' + (m.deficit / E.GDP_2026 * 100).toFixed(1) + '%</td>' +
+    '<td class="num">' + debt36 + '%</td>' +
+    '<td class="num">' + fmt1(u.U_health) + '</td>' +
+    '<td class="num">' + fmt1(u.U_equity) + '</td>' +
+    '<td class="num">' + fmt1(u.U_growth) + "</td></tr>";
+  t.innerHTML = html;
+}
+
+/* --------------------------------------------------------------- init */
+$("solveBtn").onclick = runSolve;
+loadPreset("E_pragmatic_pareto");
+})();
+</script>
+</body>
+</html>
